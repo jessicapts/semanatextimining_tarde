@@ -1,31 +1,49 @@
+# biblioteca de texto-voz google
 from gtts import gTTS
+# biblioteca flask
 from flask import Flask,render_template,request
 import os
-#criando um objeto flask
+
+#criando o objeto flask
 app = Flask(__name__)
 
-# / - Página principal . Post - recuperar
-@app.route('/',methods=['GET', 'POST'])
-def index():
+# / - página principal
+# POST - inserir
+# GET - recuperar
+@app.route('/senia',methods=['GET','POST'])
+def abrir_assistente():
     audio_path = None
     if request.method == 'POST':
+        # pegar valor do html <textfield>
+        texto = request.form['texto']     
+        # configurar o idioma
+        lingua = 'pt-br'
+        # Criação do objeto
+        tts = gTTS(text=texto,lang=lingua)    
+        #Nome do arquivo de áudio
+        audio_path = "static/audio_exemplo.mp3"
+        #Salvar o arquivo
+        tts.save(audio_path)
 
-            #Pegar valor do HTML <texfield>
-            texto = request.form['texto']
+@app.route("/")
+def index():
+    return render_template ('index.html')
 
-            #Configurar o idioma
-            lingua = 'pt-br'
+@app.route('/login',methods=['GET','POST'])
+def logar():
+    return render_template('login.html')
 
-            #criação do objeto
-            tts = gTTS(text=texto,lang=lingua)
 
-            #nome do arquivo de áudio
-            audio_path = "static/audio_exemplo.mp3"
+@app.route('/autenticar', methods=['GET','POST'])
+def autenticar():
+    #mock: (simulação de dados)
+    if request.method == 'POST':
+        if request.fotm['senha'] == 123 and request.form ['usuário'] == 'joao':
+            return render_template('senia.html')
+    else:
+        msg = 'Erro na autenticação'
+        return render_template('login.html', msg = msg)
 
-            #SaLvar o arquivo
-            tts.save(audio_path)
-        
-    return render_template('index.html',audio_path=audio_path)
 
 if __name__ == '__main__':
     app.run(debug=True)
